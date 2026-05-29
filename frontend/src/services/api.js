@@ -1,21 +1,14 @@
 import axios from 'axios';
 
-// Create Axios client pointing to our reverse-proxied /api
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
-  withCredentials: true,
-})
-
-// Request Interceptor: Attach JWT Token if saved in local storage
+// Request Interceptor: Attach JWT Token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -37,11 +30,10 @@ api.interceptors.response.use(
       error.response?.data?.message ||
       'An unexpected error occurred. Please try again.';
     
-    // Auto logout if token expires or is invalid
     if (error.response?.status === 401 && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.dispatchEvent(new Event('auth_change')); // notify contexts to log out
+      window.dispatchEvent(new Event('auth_change'));
     }
     
     return Promise.reject(new Error(message));
