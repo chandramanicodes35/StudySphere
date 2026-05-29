@@ -51,6 +51,15 @@ export const SocketProvider = ({ children }) => {
   );
 };
 
+import { io } from 'socket.io-client'
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+
+const socket = io(SOCKET_URL, {
+  withCredentials: true,
+  transports: ['websocket', 'polling'],
+})
+
 export const useSocket = () => {
   return useContext(SocketContext);
 };

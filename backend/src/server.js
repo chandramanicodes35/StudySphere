@@ -23,10 +23,11 @@ const app = express();
 const server = http.createServer(app);
 
 // Setup Socket.IO with CORS settings
-const io = new Server(server, {
+// backend/src/server.js
+const io = new Server(httpServer, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: process.env.FRONTEND_URL, // ← Must be set to your Vercel URL
+    methods: ["GET", "POST"],
     credentials: true,
   },
 });
@@ -66,3 +67,20 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
+
+const cors = require('cors')
+
+// CORS for Express
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}))
+
+// CORS for Socket.IO
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+})
