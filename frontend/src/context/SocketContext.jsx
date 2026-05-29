@@ -12,12 +12,15 @@ export const SocketProvider = ({ children }) => {
     let socketInstance = null;
 
     if (user) {
-      // Connect to the socket server (proxied locally through Vite config)
-      socketInstance = io(window.location.origin, {
+      const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      
+      socketInstance = io(SOCKET_URL, {
         autoConnect: true,
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionAttempts: 10,
+        withCredentials: true,
+        transports: ['websocket', 'polling'],
       });
 
       setSocket(socketInstance);
@@ -30,7 +33,6 @@ export const SocketProvider = ({ children }) => {
         console.log(`Socket Context: Disconnected. Reason: ${reason}`);
       });
     } else {
-      // Disconnect socket if user logs out
       if (socket) {
         socket.disconnect();
         setSocket(null);
@@ -50,15 +52,6 @@ export const SocketProvider = ({ children }) => {
     </SocketContext.Provider>
   );
 };
-
-import { io } from 'socket.io-client'
-
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
-
-const socket = io(SOCKET_URL, {
-  withCredentials: true,
-  transports: ['websocket', 'polling'],
-})
 
 export const useSocket = () => {
   return useContext(SocketContext);
